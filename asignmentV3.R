@@ -134,7 +134,7 @@ linearPlotPopulationOverYearCountries <- function(){
          x = "Year",
          title = "Population over time",
          subtitle = "Austria, Switchland, Germany, Netherlands, ",
-         caption = "Source: http://www.gapminder.org/data/")
+         caption = "Source: https://github.com/RMHogervorst/unicorns_on_unicycles")
 }
 
 linearPlotPopYearAllCountries <- function(){
