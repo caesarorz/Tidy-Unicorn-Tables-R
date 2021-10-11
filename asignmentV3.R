@@ -85,7 +85,8 @@ scatterPlotFacetCountries <- function(){
   obs_sales_contries %>%
     ggplot(.) + 
     geom_point(mapping = aes(x = pop, y = bikes)) + 
-    facet_wrap(~ name_of_country, nrow = 2)  
+    facet_wrap(~ name_of_country, nrow = 2) +
+    theme_bw()
 }
 
 scatterPlotLinearPlotCorrelation <- function(){
@@ -97,7 +98,8 @@ scatterPlotLinearPlotCorrelation <- function(){
   pop_bikes_turn %>%
     ggplot(.) + 
     geom_point(mapping = aes(x = pop, y = bikes)) +
-    geom_smooth(mapping = aes(x = pop, y = bikes))
+    geom_smooth(mapping = aes(x = pop, y = bikes)) +
+    theme_bw()
 }
 
 scatterPlotLinearPlotCorrelationColors <- function(){
@@ -106,7 +108,8 @@ scatterPlotLinearPlotCorrelationColors <- function(){
   pop_bikes_turn %>%
     ggplot(., mapping = aes(x = pop, y = bikes)) + 
     geom_point(mapping = aes(color = name_of_country)) + 
-    geom_smooth(data = filter(pop_bikes_turn)) 
+    geom_smooth(data = filter(pop_bikes_turn)) +
+    theme_bw()
 }
 
 correlationTable <- function(){
@@ -120,7 +123,7 @@ correlationTable <- function(){
     grid.table(.) 
 }
 
-barPlotBikes <- function(){ ####################################++++++++ in progress
+barPlotBikes <- function(){ ###################################
   ############### bar plot sales per  country and   
   sum_pop_bikes_country <<- obs_sales_contries %>% 
     group_by(name_of_country) %>% 
@@ -156,7 +159,13 @@ linerPlotCountryPopBikesTurnover <- function(country){
     geom_line(data=df, mapping = aes(x=year, y=population), color="orange") +
     geom_point(data=df, mapping = aes(x=year, y=population), color="orange") +
     geom_line(data=df, mapping = aes(x=year, y=bikes), color="green") +
-    geom_point(data=df, mapping = aes(x=year, y=bikes), color="green")
+    geom_point(data=df, mapping = aes(x=year, y=bikes), color="green") +
+    labs(y = "Population", 
+         x = "Year",
+         title = "Turnover",
+         subtitle = country,
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles") +
+    theme_bw()
 } 
 
 linerPlotCountryPopBikes <- function(country){
@@ -170,8 +179,9 @@ linerPlotCountryPopBikes <- function(country){
     labs(y = "Population", 
          x = "Year",
          title = "Turnover",
-         subtitle = "Austria, Switchland, Germany, Netherlands, ",
-         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+         subtitle = country,
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles") +
+    theme_bw()
 }
 
 pieChartPopulation <- function(){
@@ -232,7 +242,6 @@ pieChartTurnOver <- function(){
     coord_polar("y", start=0) +
     theme_void() + 
     #theme(legend.position="none") +
-    geom_text(aes(y = yposition, label = df_sum$total_turnover), color = "white", size=6) +
     scale_fill_brewer(palette="Set1") +
     ggtitle("Turnover by Country") +
     labs(y = "Population", 
@@ -260,7 +269,8 @@ linearPlotPopulationOverYearCountries <- function(){
          x = "Year",
          title = "Population over time",
          subtitle = "Austria, Switchland, Germany, Netherlands, ",
-         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles") +
+    theme_bw()
 }
 
 linearPlotBikesOverYearCountries <- function() {
@@ -281,7 +291,8 @@ linearPlotBikesOverYearCountries <- function() {
          x = "Year",
          title = "Number bikes over time",
          subtitle = "Austria, Switchland, Germany, Netherlands, ",
-         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles") +
+    theme_bw()
 }
 
 
@@ -324,9 +335,6 @@ scatterPlotLinearPlotCorrelationColors()
 correlationTable()
 barPlotBikes()
 barPlotTurnoverByCountry()
-pieChartBikes()
-pieChartPopulation()
-pieChartTurnOver()   ### new vs country
 linearPlotPopulationOverYearCountries()
 linearPlotBikesOverYearCountries() 
 linearPlotPopYearAllCountries()
@@ -335,7 +343,9 @@ linerPlotCountryPopBikesTurnover("FRANCE") # country smallest pop
 linerPlotCountryPopBikesTurnover("SWITZERLAND") ## country largest pop
 linerPlotCountryPopBikes("FRANCE") # country smallest pop 
 linerPlotCountryPopBikes("SWITZERLAND") ## country largest pop
-  
+pieChartBikes()
+pieChartPopulation()
+pieChartTurnOver()   ### new vs country
 
 
 
