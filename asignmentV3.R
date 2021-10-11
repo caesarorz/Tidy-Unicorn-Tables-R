@@ -5,6 +5,7 @@ installPackages <- function(){
   ## install libraries and load packages for tables
   install.packages("plotrix")
   install.packages("gridExtra")
+  install.packages("ggpubr")
 }
 
 loadLibraries <- function() {
@@ -15,6 +16,7 @@ loadLibraries <- function() {
   library(tidyverse)
   library(gridExtra)
   library(grid)
+  library(ggpubr)
 }
 
 loadTables <- function(){
@@ -24,7 +26,7 @@ loadTables <- function(){
 
 # filters, cleaning and modify variables in tables
 cleanModifyTables <- function(){
-  observations <<- observations %>%
+  obs <<- observations %>%
     mutate(name_of_country = countryname,
            name_of_country = toupper(name_of_country),
            year=as.integer(year),
@@ -47,9 +49,38 @@ cleanModifyTables <- function(){
     )
 }
 
+oneDataFrame <- function(){
+  ## combine the two df into one, cleared, tidied. 
+  sales2 <- sales %>%
+    rename(name_of_country = "name_of_country...1",
+           year = "year...2") %>%
+    select(name_of_country, year, bikes, total_turnover) %>%
+    mutate(year=as.integer(year),
+           bikes = as.integer(bikes),
+           total_turnover = as.integer(total_turnover)) %>%
+    group_by(name_of_country, year) 
+  obs2 <- obs %>%
+    mutate(year=as.integer(year),
+           population = as.integer(pop),
+           name_of_country = toupper(name_of_country)) %>%
+    select(name_of_country, year, population) %>%
+    group_by(name_of_country, year)
+  df_obs_sales <<- sales2 %>%
+    left_join(obs2)
+  return(df_obs_sales)
+}
+
+sumDataFrame <- function(){
+  df_sum <<- df_obs_sales %>% 
+    group_by(name_of_country) %>% 
+    summarize(total_turnover = sum(total_turnover),
+              bikes = sum(bikes ),
+              population = sum(population))
+}
+
 scatterPlotFacetCountries <- function(){
   #### scatterplot  all bikes and pop by country  facet_wrap   ++++++++++++++ with colors and change beauty
-  obs_sales_contries <<- observations %>%
+  obs_sales_contries <<- obs %>%
     left_join(bike_sales)
   obs_sales_contries %>%
     ggplot(.) + 
@@ -60,7 +91,7 @@ scatterPlotFacetCountries <- function(){
 scatterPlotLinearPlotCorrelation <- function(){
   # scatterplot bikes vs population linear plot correlation
   #  trend line for all countries:   unicorn population vs number of bikes
-  pop_bikes_turn <<- observations %>% # create pop_bikes_turn table with joins
+  pop_bikes_turn <<- obs %>% # create pop_bikes_turn table with joins
     left_join(bike_sales) %>%
     left_join(bike_turnover)
   pop_bikes_turn %>%
@@ -84,11 +115,12 @@ correlationTable <- function(){
   cor_turnover_countries <- obs_sales_contries %>% 
     group_by(name_of_country) %>% 
     summarize(correlation = cor(pop, bikes),
-              sum = sum(pop)) %>%
+              total_population = sum(pop),
+              total_bikes = sum(bikes)) %>%
     grid.table(.) 
 }
 
-barPlotBikesYear1 <- function(){ ####################################++++++++ in progress
+barPlotBikes <- function(){ ####################################++++++++ in progress
   ############### bar plot sales per  country and   
   sum_pop_bikes_country <<- obs_sales_contries %>% 
     group_by(name_of_country) %>% 
@@ -97,23 +129,117 @@ barPlotBikesYear1 <- function(){ ####################################++++++++ in
               total_bikes = sum(bikes)
     )
   ggplot(data = sum_pop_bikes_country) +
-    geom_bar(mapping = aes(x = name_of_country, y = total_bikes), stat = "identity")
+    geom_bar(mapping = aes(x = name_of_country, y = total_bikes, fill=name_of_country), stat = "identity") +
+    theme_minimal()
 }
 
-barPlotBikesYear2 <- function(){ ####################################++++++++ in progress
-  ############### bar plot sales per  country and   
-  sum_pop_bikes_country <<- obs_sales_contries %>% 
+
+
+barPlotTurnoverByCountry <- function(){
+  theme_set(theme_pubr())
+
+  ggplot(data=df_sum, aes(x = total_turnover, y = name_of_country )) +
+    geom_bar(fill = "#0073C2FF", stat = "identity") +
+    geom_text(aes(label = c(total_turnover)), vjust = -0.3) + 
+    theme_pubclean()
+}
+
+
+## swiss, adn france
+
+linerPlotCountryPopBikesTurnover <- function(country){
+  df <-  df_obs_sales %>% 
+    filter(name_of_country == country)
+  ggplot() +
+    geom_line(data=df, mapping = aes(x=year, y=total_turnover), color="blue") +
+    geom_point(data=df, mapping = aes(x=year, y=total_turnover), color="blue") +
+    geom_line(data=df, mapping = aes(x=year, y=population), color="orange") +
+    geom_point(data=df, mapping = aes(x=year, y=population), color="orange") +
+    geom_line(data=df, mapping = aes(x=year, y=bikes), color="green") +
+    geom_point(data=df, mapping = aes(x=year, y=bikes), color="green")
+} 
+
+linerPlotCountryPopBikes <- function(country){
+  df <-  df_obs_sales %>% 
+    filter(name_of_country == country)
+  ggplot() +
+    geom_line(data=df, mapping = aes(x=year, y=population), color="orange") +
+    geom_point(data=df, mapping = aes(x=year, y=population), color="orange") +
+    geom_line(data=df, mapping = aes(x=year, y=bikes), color="green") +
+    geom_point(data=df, mapping = aes(x=year, y=bikes), color="green") +
+    labs(y = "Population", 
+         x = "Year",
+         title = "Turnover",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+}
+
+pieChartPopulation <- function(){
+  ###  generates tables with y position for pie chart
+  sum_pop_bikes_country <<- df_obs_sales %>% 
     group_by(name_of_country) %>% 
     summarize(bikes = sum(bikes),
-              total_population = sum(pop),
+              total_population = sum(population),
               total_bikes = sum(bikes)
-    )
-  ggplot(data=obs_sales_contries, aes(x=year, y=bikes)) +
-    geom_bar(stat="identity", position=position_dodge())+
-    geom_text(aes(label=name_of_country), vjust=1.6, color="white",
-              position = position_dodge(0.9), size=3.5)+
-    scale_fill_brewer(palette="Paired")+
-    theme_minimal()
+    )  
+  sum_pop_bikes_country %>% 
+    arrange(desc(name_of_country)) %>%
+    mutate(prop = ceiling(total_population / sum(sum_pop_bikes_country$total_population) *100)) %>%
+    mutate(yposition = cumsum(total_population)- 0.5*total_population ) %>%
+  ggplot(., aes(x="", y=total_population, fill=name_of_country)) +
+    geom_bar(stat="identity", width=1, color="white") +
+    coord_polar("y", start=0) +
+    theme_void() + 
+    #theme(legend.position="none") +
+    geom_text(aes(y = yposition, label = total_population), color = "white", size=6) +
+    scale_fill_brewer(palette="Set1") +
+    ggtitle("Population by country") +
+    labs(y = "Population", 
+         x = "Year",
+         title = "Population",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+}
+
+pieChartBikes <- function(){
+  ###  generates tables with y position for pie chart
+  sum_pop_bikes_country %>% 
+    arrange(desc(name_of_country)) %>%
+    mutate(total_population = ceiling(total_population / sum(sum_pop_bikes_country$total_bikes) *100)) %>%
+    mutate(yposition = cumsum(total_bikes)- 0.5*total_bikes ) %>%
+    ggplot(., aes(x="", y=total_bikes, fill=name_of_country)) +
+    geom_bar(stat="identity", width=1, color="white") +
+    coord_polar("y", start=0) +
+    theme_void() + 
+    #theme(legend.position="none") +
+    geom_text(aes(y = yposition, label = total_bikes), color = "white", size=6) +
+    scale_fill_brewer(palette="Set1") +
+    ggtitle("Number of Bikes by country")  +
+    labs(y = "Bikes", 
+         x = "Year",
+         title = "Bikes",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+}
+
+pieChartTurnOver <- function(){
+  ###  generates tables with y position for pie chart
+  df_sum %>% 
+    mutate(total_turnover = ceiling(total_turnover / sum(df_sum$total_turnover) *100)) %>%
+    mutate(yposition = cumsum(total_turnover)- 0.5*total_turnover ) %>%
+    ggplot(., aes(x="", y=total_turnover, fill=name_of_country)) +
+    geom_bar(stat="identity", width=1, color="white") +
+    coord_polar("y", start=0) +
+    theme_void() + 
+    #theme(legend.position="none") +
+    geom_text(aes(y = yposition, label = df_sum$total_turnover), color = "white", size=6) +
+    scale_fill_brewer(palette="Set1") +
+    ggtitle("Turnover by Country") +
+    labs(y = "Population", 
+         x = "Year",
+         title = "Turnover",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
 }
 
 linearPlotPopulationOverYearCountries <- function(){
@@ -134,15 +260,42 @@ linearPlotPopulationOverYearCountries <- function(){
          x = "Year",
          title = "Population over time",
          subtitle = "Austria, Switchland, Germany, Netherlands, ",
-         caption = "Source: https://github.com/RMHogervorst/unicorns_on_unicycles")
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
 }
+
+linearPlotBikesOverYearCountries <- function() {
+  ###############   linear plot: bikes over years (sum of 5 countries)
+  year_bikes <<- obs_sales_contries %>% 
+    group_by(year) %>% 
+    summarize(bikes = sum(bikes))
+  
+  # with better lines etc
+  ggplot(year_bikes, 
+         aes(x = year, 
+             y = bikes)) +
+    geom_line(size = 1.5, 
+              color = "lightgrey") +
+    geom_point(size = 3, 
+               color = "steelblue") +
+    labs(y = "Number bikes", 
+         x = "Year",
+         title = "Number bikes over time",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
+}
+
 
 linearPlotPopYearAllCountries <- function(){
   ## for all countries population over year
   ggplot(data=obs_sales_contries, aes(x=year, y=pop, group=name_of_country, color=name_of_country)) +
     geom_line() + geom_point()+
     scale_color_brewer(palette="Paired")+
-    theme_minimal()
+    theme_minimal() +
+    labs(y = "Population", 
+         x = "Year",
+         title = "Population over time",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
 }
 
 linearPlotBikesYearAllCountries <- function() {
@@ -150,7 +303,12 @@ linearPlotBikesYearAllCountries <- function() {
   ggplot(data=obs_sales_contries, aes(x=year, y=bikes, group=name_of_country, color=name_of_country)) +
     geom_line() + geom_point()+
     scale_color_brewer(palette="Paired")+
-    theme_minimal()
+    theme_minimal() +
+    labs(y = "Population", 
+         x = "Year",
+         title = "Population over time",
+         subtitle = "Austria, Switchland, Germany, Netherlands, ",
+         caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
 }
 
 
@@ -158,56 +316,26 @@ installPackages() # takes some time
 loadLibraries() 
 loadTables()
 cleanModifyTables()
+oneDataFrame()
+sumDataFrame()
 scatterPlotFacetCountries()
 scatterPlotLinearPlotCorrelation()
 scatterPlotLinearPlotCorrelationColors()
 correlationTable()
-barPlotBikesYear1()
-barPlotBikesYear2()
+barPlotBikes()
+barPlotTurnoverByCountry()
+pieChartBikes()
+pieChartPopulation()
+pieChartTurnOver()   ### new vs country
 linearPlotPopulationOverYearCountries()
+linearPlotBikesOverYearCountries() 
 linearPlotPopYearAllCountries()
 linearPlotBikesYearAllCountries()
-
-
-
-
-
-
-
-
+linerPlotCountryPopBikesTurnover("FRANCE") # country smallest pop 
+linerPlotCountryPopBikesTurnover("SWITZERLAND") ## country largest pop
+linerPlotCountryPopBikes("FRANCE") # country smallest pop 
+linerPlotCountryPopBikes("SWITZERLAND") ## country largest pop
   
-
-
-############### pie charts                       ++++++++ in progress
-
-# Create Data
-data <- data.frame(
-  group=LETTERS[1:5],
-  value=c(13,7,9,21,2)
-)
-
-# Compute the position of labels
-data <- data %>% 
-  arrange(desc(group)) %>%
-  mutate(prop = value / sum(data$value) *100) %>%
-  mutate(ypos = cumsum(prop)- 0.5*prop )
-
-data
-
-# Basic piechart
-ggplot(data, aes(x="", y=prop, fill=group)) +
-  geom_bar(stat="identity", width=1, color="white") +
-  coord_polar("y", start=0) +
-  theme_void() + 
-  theme(legend.position="none") +
-  geom_text(aes(y = ypos, label = group), color = "white", size=6) +
-  scale_fill_brewer(palette="Set1")
-
-#####################################################
-
-
-
-
 
 
 
