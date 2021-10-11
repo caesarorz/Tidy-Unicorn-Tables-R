@@ -25,8 +25,8 @@ loadTables <- function(path){
   #observations <<- read_excel("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/tables/observations.xlsx")
   #sales <<- read_excel("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/tables/sales.xlsx")
   
-  observations <<- read_excel(paste(path,"tables/observations.xlsx", sep=''))
-  sales <<- read_excel(paste(path,"tables/sales.xlsx", sep=''))
+  observations <<- read_excel(paste(path,"/tables/observations.xlsx", sep=''))
+  sales <<- read_excel(paste(path,"/tables/sales.xlsx", sep=''))
 }
 
 # filters, cleaning and modify variables in tables
@@ -140,8 +140,6 @@ barPlotBikes <- function(){ ###################################
     theme_minimal()
 }
 
-
-
 barPlotTurnoverByCountry <- function(){
   theme_set(theme_pubr())
   
@@ -152,8 +150,7 @@ barPlotTurnoverByCountry <- function(){
 }
 
 
-## swiss, adn france
-
+## swis, adn france
 linerPlotCountryPopBikesTurnover <- function(country){
   df <-  df_obs_sales %>% 
     filter(name_of_country == country)
