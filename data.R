@@ -1,3 +1,7 @@
+
+
+
+
 installPackages <- function(){
   # install packages and load libraries 
   install.packages("plotrix")
@@ -150,7 +154,7 @@ barPlotBikes <- function(){ ###################################
 
 barPlotTurnoverByCountry <- function(){
   theme_set(theme_pubr())
-
+  
   ggplot(data=df_sum, aes(x = total_turnover, y = name_of_country )) +
     geom_bar(fill = "#0073C2FF", stat = "identity") +
     geom_text(aes(label = c(total_turnover)), vjust = -0.3) + 
@@ -206,7 +210,7 @@ pieChartPopulation <- function(){
     arrange(desc(name_of_country)) %>%
     mutate(prop = ceiling(total_population / sum(sum_pop_bikes_country$total_population) *100)) %>%
     mutate(yposition = cumsum(total_population)- 0.5*total_population ) %>%
-  ggplot(., aes(x="", y=total_population, fill=name_of_country)) +
+    ggplot(., aes(x="", y=total_population, fill=name_of_country)) +
     geom_bar(stat="identity", width=1, color="white") +
     coord_polar("y", start=0) +
     theme_void() + 
@@ -331,33 +335,6 @@ linearPlotBikesYearAllCountries <- function() {
          subtitle = "Austria, Switchland, Germany, Netherlands, ",
          caption = "Source:https://github.com/RMHogervorst/unicorns_on_unicycles")
 }
-
-
-installPackages() # takes some time
-loadLibraries() 
-loadTables()
-cleanModifyTables()
-oneDataFrame()
-sumDataFrame()
-scatterPlotFacetCountries()
-scatterPlotLinearPlotCorrelation()
-scatterPlotLinearPlotCorrelationColors()
-correlationTable()
-barPlotBikes()
-barPlotTurnoverByCountry()
-linearPlotPopulationOverYearCountries()
-linearPlotBikesOverYearCountries() 
-linearPlotPopYearAllCountries()
-linearPlotBikesYearAllCountries()
-linerPlotCountryPopBikesTurnover("FRANCE") # country smallest pop 
-linerPlotCountryPopBikesTurnover("SWITZERLAND") ## country largest pop
-linerPlotCountryPopBikes("FRANCE") # country smallest pop 
-linerPlotCountryPopBikes("SWITZERLAND") ## country largest pop
-pieChartBikes()
-pieChartPopulation()
-pieChartTurnOver()   ### new vs country
-
-
 
 
 
