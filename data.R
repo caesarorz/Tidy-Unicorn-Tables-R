@@ -1,7 +1,3 @@
-
-
-
-
 installPackages <- function(){
   # install packages and load libraries 
   install.packages("plotrix")
@@ -21,21 +17,16 @@ loadLibraries <- function() {
   library(gridExtra)
   library(grid)
   library(ggpubr)
+  library("rstudioapi")
 }
 
-# if("gridExtra" %in% (.packages())){
-#   print("TRUE") 
-# } else {
-#   print("FALSE")
-# }
-# list.of.packages <- c("ggplot2", "Rcpp")
-# new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-# if(length(new.packages)) install.packages(new.packages)
 
-
-loadTables <- function(){
-  observations <<- read_excel("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/observations.xlsx")
-  sales <<- read_excel("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/sales.xlsx")
+loadTables <- function(path){
+  #observations <<- read_excel("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/tables/observations.xlsx")
+  #sales <<- read_excel("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/tables/sales.xlsx")
+  
+  observations <<- read_excel(paste(path,"tables/observations.xlsx", sep=''))
+  sales <<- read_excel(paste(path,"tables/sales.xlsx", sep=''))
 }
 
 # filters, cleaning and modify variables in tables
@@ -81,7 +72,6 @@ oneDataFrame <- function(){
     group_by(name_of_country, year)
   df_obs_sales <<- sales2 %>%
     left_join(obs2)
-  return(df_obs_sales)
 }
 
 sumDataFrame <- function(){
