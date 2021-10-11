@@ -83,7 +83,7 @@ sumDataFrame <- function(){
 }
 
 scatterPlotFacetCountries <- function(){
-  #### scatterplot  all bikes and pop by country  facet_wrap   ++++++++++++++ with colors and change beauty
+  #### scatterplot  all bikes and pop by country  facet_wrap  
   obs_sales_contries <<- obs %>%
     left_join(bike_sales)
   obs_sales_contries %>%
@@ -127,8 +127,8 @@ correlationTable <- function(){
     grid.table(.) 
 }
 
-barPlotBikes <- function(){ ###################################
-  ############### bar plot sales per  country and   
+barPlotBikes <- function(){ 
+  #### bar plot sales per  country and   
   sum_pop_bikes_country <<- obs_sales_contries %>% 
     group_by(name_of_country) %>% 
     summarize(bikes = sum(bikes),
@@ -238,7 +238,7 @@ pieChartTurnOver <- function(){
   df_sum %>% 
     mutate(total_turnover = ceiling(total_turnover / sum(df_sum$total_turnover) *100)) %>%
     mutate(yposition = cumsum(total_turnover)- 0.5*total_turnover ) %>%
-    ggplot(., aes(x="", y=total_turnover, fill=name_of_country)) +
+    ggplot(., aes(x="", y=total_turnover, fill=total_turnover)) +
     geom_bar(stat="identity", width=1, color="white") +
     coord_polar("y", start=0) +
     theme_void() + 
