@@ -161,6 +161,9 @@ linerPlotCountryPopBikesTurnover <- function(country){
     geom_point(data=df, mapping = aes(x=year, y=population), color="orange") +
     geom_line(data=df, mapping = aes(x=year, y=bikes), color="green") +
     geom_point(data=df, mapping = aes(x=year, y=bikes), color="green") +
+    scale_colour_manual("", 
+                        breaks = c("bikes", "population", "total_turnover"),
+                        values = c("green", "orange", "blue")) +
     labs(y = "Turnover, population and bikes", 
          x = "Year",
          title = "Turnover",

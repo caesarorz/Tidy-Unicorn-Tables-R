@@ -36,8 +36,8 @@ linerPlotCountryPopBikesTurnover("FRANCE") # country smallest pop
 linerPlotCountryPopBikes("FRANCE") # country smallest pop 
 linerPlotCountryPopBikesTurnover("SWITZERLAND") ## country largest pop
 linerPlotCountryPopBikes("SWITZERLAND") ## country largest pop
-pieChartBikes()
 pieChartPopulation()
+pieChartBikes()
 pieChartTurnOver()
 
 
