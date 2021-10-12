@@ -1,8 +1,11 @@
 # notes for testers and developers:
 # if you need a new package, put the name in "list.of.packages" variable
 
+################################################### init
 ## list of packages needed
-list.of.packages <- c("ggplot2", "Rcpp", "plotrix", "gridExtra", "ggpubr", "gganimate", "here", "rstudioapi")
+list.of.packages <- c("ggplot2", "Rcpp", "plotrix", 
+                      "gridExtra", "ggpubr", "gganimate", 
+                      "here", "rstudioapi")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)){
   install.packages(new.packages)
@@ -21,6 +24,10 @@ cleanModifyTables() # clean current tables
 oneDataFrame() # generates 3 tables (just to play around)
 sumDataFrame() # generates one table
 
+##############################################
+
+
+############################################# render plots individually or all
 
 scatterPlotFacetCountries()
 scatterPlotLinearPlotCorrelation()
@@ -38,7 +45,7 @@ linerPlotCountryPopBikesTurnover("SWITZERLAND") ## country largest pop
 linerPlotCountryPopBikes("SWITZERLAND") ## country largest pop
 pieChartPopulation()
 pieChartBikes()
-pieChartTurnOver()
+# pieChartTurnOver() removed. Turnover not represented very well
 
 
 
