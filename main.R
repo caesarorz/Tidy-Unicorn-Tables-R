@@ -12,12 +12,14 @@ if(length(new.packages)){
   library(new.packages)
 }
 ## place all functions into memory
-source("C:/Users/50687/Desktop/dojo/bootcamp/week5/weekend/data.R")
+
 ## enable local path (tested on Windows 10) 
 path <- getSourceEditorContext()$path
 mypath <- str_remove(path, "main.R")
 setwd(mypath)
 loadTables(getwd())
+
+source(paste(mypath, "main.R", sep=''))
 
 ## creates and tidy tables
 cleanModifyTables() # clean current tables
